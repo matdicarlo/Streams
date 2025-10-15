@@ -1,16 +1,21 @@
-# Requirement
-1. Kafka Cluster running and deployed:
+# Requirements
+1. Streams for Apache Kafka Operator installed
+2. Streams for Apache Kafka Conbsole Operator installed
+
+# Deployments
+Kafka Cluster
 ~~~
-oc apply -f 
+oc apply -f https://raw.githubusercontent.com/matdicarlo/Streams-for-Apache-Kafka/refs/heads/main/Streams_console/kafka_cluster.yaml?token=GHSAT0AAAAAADMLNY27HBO6ORARA663DXGC2HPMF6A
 ~~~
 
-# Steps to install and configure
-1. Install the Strams Console Operator
-2. Set env variables
+## Console
+Set env variables
 ~~~
 export KAFKA_CR_NAME="my-cluster"
-export UI_CONSOLE_URL="my-console-ui.apps.mdicarlo-test11.emea.aws.cee.support"
+export UI_CONSOLE_URL="my-console-ui.apps.mdicarlo-test.emea.aws.cee.support"
 export NAMESPACE="strimzi"
 export KAFKA_LISTENER_NAME="plain"
 export KAFKA_CONSOLE_USER="console-kafka-user"
 ~~~
+
+Deploy Console
