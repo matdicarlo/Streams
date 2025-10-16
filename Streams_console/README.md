@@ -19,3 +19,21 @@ export KAFKA_CONSOLE_USER="console-kafka-user"
 ~~~
 
 Deploy Console
+
+~~~
+cat <<'EOF' | envsubst | oc apply -f -
+apiVersion: console.streamshub.github.com/v1alpha1
+kind: Console
+metadata:
+  name: my-console
+spec:
+  hostname: $UI_CONSOLE_URL
+  kafkaClusters:
+    - name: $KAFKA_CR_NAME
+      namespace: $NAMESPACE
+      listener: $KAFKA_LISTENER_NAME
+      credentials:
+        kafkaUser:
+          name: $KAFKA_CONSOLE_USER
+EOF
+~~~
