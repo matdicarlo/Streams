@@ -1,0 +1,128 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  annotations:
+    strimzi.io/kraft: enabled
+    strimzi.io/node-pools: enabled
+  creationTimestamp: '2025-10-21T07:44:41Z'
+  generation: 1
+  managedFields:
+    - apiVersion: kafka.strimzi.io/v1beta2
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            .: {}
+            'f:strimzi.io/kraft': {}
+            'f:strimzi.io/node-pools': {}
+        'f:spec':
+          .: {}
+          'f:entityOperator':
+            .: {}
+            'f:topicOperator': {}
+            'f:userOperator': {}
+          'f:kafka':
+            .: {}
+            'f:config':
+              .: {}
+              'f:default.replication.factor': {}
+              'f:min.insync.replicas': {}
+              'f:offsets.topic.replication.factor': {}
+              'f:transaction.state.log.min.isr': {}
+              'f:transaction.state.log.replication.factor': {}
+            'f:listeners': {}
+            'f:metadataVersion': {}
+            'f:version': {}
+      manager: Mozilla
+      operation: Update
+      time: '2025-10-21T07:44:41Z'
+    - apiVersion: kafka.strimzi.io/v1beta2
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:status':
+          .: {}
+          'f:conditions': {}
+          'f:observedGeneration': {}
+      manager: strimzi-cluster-operator
+      operation: Update
+      subresource: status
+      time: '2025-10-21T07:44:41Z'
+  name: my-cluster
+  namespace: openshift-operators
+  resourceVersion: '362847'
+  uid: 9c6eada8-5670-4dbd-a9c6-91e739427cf7
+spec:
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+  kafka:
+    config:
+      default.replication.factor: 3
+      min.insync.replicas: 2
+      offsets.topic.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      transaction.state.log.replication.factor: 3
+    listeners:
+      - name: plain
+        port: 9092
+        tls: false
+        type: internal
+      - name: tls
+        port: 9093
+        tls: true
+        type: internal
+    metadataVersion: 4.0-IV3
+    version: 4.0.0
+status:
+  conditions:
+    - lastTransitionTime: '2025-10-21T07:44:41.596710188Z'
+      message: Kafka cluster is being deployed
+      reason: Creating
+      status: 'True'
+      type: NotReady
+  observedGeneration: 0
+
+---
+
+# kafka-nodepools.yaml
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  # ... (remove managedFields for a clean apply)
+  labels:
+    strimzi.io/cluster: my-cluster
+  name: my-pool
+  namespace: openshift-operators
+spec:
+  replicas: 3
+  roles:
+    - broker # This pool is for the broker role
+  storage:
+    type: jbod
+    volumes:
+      - deleteClaim: false
+        id: 0
+        size: 100Gi
+        type: persistent-claim
+
+---
+
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  # ... (remove managedFields for a clean apply)
+  labels:
+    strimzi.io/cluster: my-cluster
+  name: my-pool-controller
+  namespace: openshift-operators
+spec:
+  replicas: 3
+  roles:
+    - controller # This pool is for the controller role
+  storage:
+    type: jbod
+    volumes:
+      - deleteClaim: false
+        id: 0
+        size: 100Gi
+        type: persistent-claim

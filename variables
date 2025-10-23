@@ -1,0 +1,6 @@
+export KAFKA_CR_NAME="my-cluster"
+export UI_CONSOLE_URL="my-console-ui.apps.mdicarlo-test11.emea.aws.cee.support"
+export NAMESPACE="strimzi"
+export KAFKA_LISTENER_NAME="plain"
+export KAFKA_CONSOLE_USER="console-kafka-user"
+

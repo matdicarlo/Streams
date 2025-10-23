@@ -5,7 +5,12 @@
 # Deployments
 Kafka Cluster
 ~~~
+<<<<<<< HEAD
 oc apply -f https://raw.githubusercontent.com/matdicarlo/Streams-for-Apache-Kafka/refs/heads/main/Streams_console/kafka_cluster.yaml?token=GHSAT0AAAAAADMLNY27HBO6ORARA663DXGC2HPMF6A
+=======
+oc apply -f https://raw.githubusercontent.com/.yaml
+
+>>>>>>> fb73647 (add cluster.yaml)
 ~~~
 
 ## Console
