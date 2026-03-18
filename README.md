@@ -1,1 +1,1 @@
-# Configure Streams 
+Streams for Apache Kafka
