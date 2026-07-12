@@ -1,0 +1,116 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  annotations:
+    strimzi.io/kraft: enabled
+    strimzi.io/node-pools: enabled
+  name: my-cluster
+  namespace: strimzi
+spec:
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+  kafka:
+    config:
+      default.replication.factor: 3
+      min.insync.replicas: 2
+      offsets.topic.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      transaction.state.log.replication.factor: 3
+    listeners:
+      - name: plain
+        port: 9092
+        tls: false
+        type: internal
+      - name: tls
+        port: 9093
+        tls: true
+        type: internal
+    metadataVersion: 4.0-IV3
+    version: 4.2.0
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  labels:
+    strimzi.io/cluster: my-cluster
+  name: my-pool
+  namespace: strimzi
+spec:
+  replicas: 3
+  roles:
+    - broker
+  storage:
+    type: jbod
+    volumes:
+      - deleteClaim: false
+        id: 0
+        size: 100Gi
+        type: persistent-claim
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  labels:
+    strimzi.io/cluster: my-cluster
+  name: my-pool-controller
+  namespace: strimzi
+spec:
+  replicas: 3
+  roles:
+    - controller
+  storage:
+    type: jbod
+    volumes:
+      - deleteClaim: false
+        id: 0
+        size: 100Gi
+        type: persistent-claim
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaMirrorMaker2
+metadata:
+  name: my-mirror-maker
+  namespace: strimzi
+spec:
+  version: 4.2.0
+  replicas: 1
+  # The cluster where the Connect framework will actually run and store its state
+  connectCluster: "target-cluster"
+  clusters:
+    # 1. Provide the bootstrap address of the remote SOURCE cluster
+    - alias: "source-cluster"
+      bootstrapServers: "remote-source-cluster-kafka-bootstrap.strimzi.svc:9092"
+    
+    # 2. Provide the bootstrap address of your new TARGET cluster (my-cluster)
+    - alias: "target-cluster"
+      bootstrapServers: "my-cluster-kafka-bootstrap.strimzi.svc:9092"
+  
+  mirrors:
+    - sourceCluster: "source-cluster"
+      targetCluster: "target-cluster"
+      
+      # Select which topics to mirror (.* means all topics)
+      topicsPattern: ".*"
+      # Select which consumer groups to mirror (.* means all groups)
+      groupsPattern: ".*"
+      
+      sourceConnector:
+        config:
+          replication.factor: 3
+          offset-syncs.topic.replication.factor: 3
+          sync.topic.acls.enabled: "false"
+      
+      heartbeatConnector:
+        config:
+          heartbeats.topic.replication.factor: 3
+      
+      checkpointConnector:
+        config:
+          checkpoints.topic.replication.factor: 3
+          sync.group.offsets.enabled: true
+          # Fix for your specific warning: Excludes the active target group
+          groups.exclude: "test-group"
