@@ -1,10 +1,9 @@
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: Kafka
 metadata:
   annotations:
     strimzi.io/kraft: enabled
     strimzi.io/node-pools: enabled
-  generation: 1
   name: my-cluster
   namespace: streams
 spec:
@@ -27,12 +26,11 @@ spec:
         port: 9093
         tls: true
         type: internal
-    metadataVersion: 4.1-IV1
-    version: 4.1.0
+    metadataVersion: 4.2-IV1
+    version: 4.2.0
 
 ---
-
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
   labels:
@@ -42,21 +40,19 @@ metadata:
 spec:
   replicas: 3
   roles:
-  - broker
+    - broker
   storage:
     type: jbod
     volumes:
-    - deleteClaim: false
-      id: 0
-      size: 100Gi
-      type: persistent-claim
+      - deleteClaim: false
+        id: 0
+        size: 100Gi
+        type: persistent-claim
 
 ---
-
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
-  generation: 1
   labels:
     strimzi.io/cluster: my-cluster
   name: my-poolc
@@ -64,12 +60,11 @@ metadata:
 spec:
   replicas: 3
   roles:
-  - controller
+    - controller
   storage:
     type: jbod
     volumes:
-    - deleteClaim: false
-      id: 0
-      size: 100Gi
-      type: persistent-claim
-
+      - deleteClaim: false
+        id: 0
+        size: 100Gi
+        type: persistent-claim

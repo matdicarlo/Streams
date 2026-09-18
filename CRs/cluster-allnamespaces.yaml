@@ -1,11 +1,11 @@
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: Kafka
 metadata:
   annotations:
     strimzi.io/kraft: enabled
     strimzi.io/node-pools: enabled
   name: my-cluster
-  namespace: openshift-operators
+  namespace: kafka-mm2
 spec:
   entityOperator:
     topicOperator: {}
@@ -26,18 +26,17 @@ spec:
         port: 9093
         tls: true
         type: internal
-    metadataVersion: 4.0-IV3
-    version: 4.0.0
+    metadataVersion: 4.2-IV1
+    version: 4.2.0
 
 ---
-
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
   labels:
     strimzi.io/cluster: my-cluster
   name: my-pool
-  namespace: openshift-operators
+  namespace: kafka-mm2
 spec:
   replicas: 3
   roles:
@@ -51,14 +50,13 @@ spec:
         type: persistent-claim
 
 ---
-
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
   labels:
     strimzi.io/cluster: my-cluster
   name: my-pool-controller
-  namespace: openshift-operators
+  namespace: kafka-mm2
 spec:
   replicas: 3
   roles:
