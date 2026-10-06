@@ -1,0 +1,28 @@
+# Description
+This YAML deploys MM2 and Kafka clusters instances.
+
+# Test
+~~~
+# topic definition
+oc apply demo-topic.yaml
+
+# topic resource verification
+oc get kafkatopic test-event-stream -n kafka-mm2
+
+# produce message on source cluster topic
+oc exec pod/remote-cluster-remote-pool-0 -n kafka-mm2 -- sh -c 'echo "test-message-from-remote" | bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic test-event-stream'
+
+# verification
+oc exec pod/remote-cluster-remote-pool-0 -n kafka-mm2 -- bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test-event-stream --from-beginning --max-messages 1 --timeout-ms 5000
+Hi
+Processed a total of 1 messages
+
+target mirroring verification
+oc exec -it pod/my-cluster-my-pool-0 -n kafka-mm2 -- bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic source-cluster.test-event-stream --from-beginning --timeout-ms 10000
+Hi
+Test Message
+hello from remote cluster
+test-message-from-remote
+
+
+~~~

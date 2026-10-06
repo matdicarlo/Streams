@@ -1,0 +1,10 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaTopic
+metadata:
+  name: test-event-stream
+  namespace: kafka-mm2
+  labels:
+    strimzi.io/cluster: remote-cluster
+spec:
+  partitions: 3
+  replicas: 1
