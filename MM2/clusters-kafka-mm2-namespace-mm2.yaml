@@ -1,0 +1,188 @@
+# Source cluster
+
+apiVersion: kafka.strimzi.io/v1
+kind: Kafka
+metadata:
+  annotations:
+    strimzi.io/kraft: enabled
+    strimzi.io/node-pools: enabled
+  name: my-cluster
+  namespace: kafka-mm2
+spec:
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+  kafka:
+    config:
+      default.replication.factor: 3
+      min.insync.replicas: 2
+      offsets.topic.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      transaction.state.log.replication.factor: 3
+    listeners:
+      - name: plain
+        port: 9092
+        tls: false
+        type: internal
+      - name: tls
+        port: 9093
+        tls: true
+        type: internal
+    metadataVersion: 4.2-IV1
+    version: 4.2.0
+
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaNodePool
+metadata:
+  labels:
+    strimzi.io/cluster: my-cluster
+  name: my-pool
+  namespace: kafka-mm2
+spec:
+  replicas: 3
+  roles:
+    - broker
+  storage:
+    type: jbod
+    volumes:
+      - deleteClaim: false
+        id: 0
+        size: 100Gi
+        type: persistent-claim
+
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaNodePool
+metadata:
+  labels:
+    strimzi.io/cluster: my-cluster
+  name: my-pool-controller
+  namespace: kafka-mm2
+spec:
+  replicas: 3
+  roles:
+    - controller
+  storage:
+    type: jbod
+    volumes:
+      - deleteClaim: false
+        id: 0
+        size: 100Gi
+        type: persistent-claim
+
+---
+# Remote cluster
+
+apiVersion: kafka.strimzi.io/v1
+kind: Kafka
+metadata:
+  annotations:
+    strimzi.io/kraft: enabled
+    strimzi.io/node-pools: enabled
+  name: remote-cluster
+  namespace: kafka-mm2
+spec:
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+  kafka:
+    config:
+      default.replication.factor: 1
+      min.insync.replicas: 1
+      offsets.topic.replication.factor: 1
+      transaction.state.log.min.isr: 1
+      transaction.state.log.replication.factor: 1
+    listeners:
+      - name: plain
+        port: 9092
+        tls: false
+        type: internal
+      - name: tls
+        port: 9093
+        tls: true
+        type: internal
+    metadataVersion: 4.2-IV1
+    version: 4.2.0
+
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaNodePool
+metadata:
+  labels:
+    strimzi.io/cluster: remote-cluster
+  name: remote-pool
+  namespace: kafka-mm2
+spec:
+  replicas: 1
+  roles:
+    - broker
+  storage:
+    type: jbod
+    volumes:
+      - deleteClaim: false
+        id: 0
+        size: 10Gi
+        type: persistent-claim
+
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaNodePool
+metadata:
+  labels:
+    strimzi.io/cluster: remote-cluster
+  name: remote-pool-controller
+  namespace: kafka-mm2
+spec:
+  replicas: 1
+  roles:
+    - controller
+  storage:
+    type: jbod
+    volumes:
+      - deleteClaim: false
+        id: 0
+        size: 10Gi
+        type: persistent-claim
+---
+
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaMirrorMaker2
+metadata:
+  name: my-mirror-maker
+  namespace: kafka-mm2
+spec:
+  version: 4.2.0
+  replicas: 1
+  target:
+    alias: "target-cluster"
+    bootstrapServers: "my-cluster-kafka-bootstrap.kafka-mm2.svc:9092"
+    groupId: my-mm2-group
+    configStorageTopic: __my-mm2-config
+    offsetStorageTopic: __my-mm2-offset
+    statusStorageTopic: __my-mm2-status
+    config:
+      config.storage.replication.factor: 3
+      offset.storage.replication.factor: 3
+      status.storage.replication.factor: 3
+  mirrors:
+    - source:
+        alias: "source-cluster"
+        bootstrapServers: "remote-cluster-kafka-bootstrap.kafka-mm2.svc:9092"
+        topicsPattern: ".*"
+        groupsPattern: ".*"
+        sourceConnector:
+          config:
+            replication.factor: 3
+            offset-syncs.topic.replication.factor: 3
+            sync.topic.acls.enabled: "false"
+            offset-syncs.topic.location: target
+        heartbeatConnector:
+          config:
+            heartbeats.topic.replication.factor: 3
+        checkpointConnector:
+          config:
+            checkpoints.topic.replication.factor: 3
+            offset-syncs.topic.location: target
+            sync.group.offsets.enabled: true
+            groups.exclude: "test-group"
