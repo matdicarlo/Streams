@@ -304,8 +304,10 @@ spec:
           type: cluster
       - operations:
           - Read
+          - Write
           - Describe
           - DescribeConfigs
+          - Create
         resource:
           name: '*'
           patternType: literal
