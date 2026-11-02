@@ -16,11 +16,12 @@ oc apply -f https://raw.githubusercontent.com/.yaml
 ## Console
 Set env variables
 ~~~
-export KAFKA_CR_NAME="my-cluster"
-export UI_CONSOLE_URL="my-console-ui.apps.mdicarlo-test.emea.aws.cee.support"
+export KAFKA_CR_NAME="kafka-cluster"
 export NAMESPACE="streams"
 export KAFKA_LISTENER_NAME="plain"
 export KAFKA_CONSOLE_USER="console-kafka-user"
+export BASE_DOMAIN=$(oc get route kafka-cluster-kafka-bootstrap -n streams -o jsonpath='{.spec.host}' | cut -d'.' -f2-)
+export UI_CONSOLE_URL="my-console-ui.apps.${BASE_DOMAIN}"
 ~~~
 
 Deploy Console
