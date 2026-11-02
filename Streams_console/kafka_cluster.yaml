@@ -1,4 +1,4 @@
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
   name: controller
@@ -17,7 +17,7 @@ spec:
         size: 10Gi
         deleteClaim: false
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
   name: broker
@@ -36,7 +36,7 @@ spec:
         size: 10Gi
         deleteClaim: false
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: Kafka
 metadata:
   annotations:
@@ -272,19 +272,19 @@ kind: Secret
 apiVersion: v1
 metadata:
   name: console-kafka-user
-  namespace: strimzi
+  namespace: streams
 data:
   password: bXlwYXNzd29yZA==
   sasl.jaas.config: b3JnLmFwYWNoZS5rYWZrYS5jb21tb24uc2VjdXJpdHkuc2NyYW0uU2NyYW1Mb2dpbk1vZHVsZSByZXF1aXJlZCB1c2VybmFtZT0iY29uc29sZS1rYWZrYS11c2VyIiBwYXNzd29yZD0ibXlwYXNzd29yZCI7
 type: Opaque
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaUser
 metadata:
   labels:
     strimzi.io/cluster: kafka-cluster
   name: console-kafka-user
-  namespace: strimzi
+  namespace: streams
 spec:
   authentication:
     password:
